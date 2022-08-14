@@ -6,6 +6,8 @@ A simple ESP32-based device that subscribes to an MQTT service allowing the cont
 
 ## MQTT Client Usage
 
+The following example would rotate the motor by 15 degrees in a clockwise direction:
+
     mosquitto_pub -h <host> -t esp32/dev/motor/command -m 15
 
 ## Pins
