@@ -13,16 +13,10 @@ config['client_id'] = MQTT_CLIENT_ID
 config['user'] = MQTT_USERNAME
 config['password'] = MQTT_PASSWORD
 
-def ledfunc(pin):
-    pin = pin
-    def func(v):
-        pin(not v)
-    return func
-
-led_power = ledfunc(Pin(21, Pin.OUT, value = 1))
-led_wifi = ledfunc(Pin(22, Pin.OUT, value = 0))
-led_connected = ledfunc(Pin(23, Pin.OUT, value = 0))
-led_mqtt_msg = ledfunc(Pin(15, Pin.OUT, value = 0))
+led_power = Pin(21, Pin.OUT, value = 1)
+led_wifi = Pin(22, Pin.OUT, value = 0)
+led_connected = Pin(23, Pin.OUT, value = 0)
+led_mqtt_msg = Pin(15, Pin.OUT, value = 0)
 
 motor_i1 = Pin(26, Pin.OUT)
 motor_i2 = Pin(25, Pin.OUT)
