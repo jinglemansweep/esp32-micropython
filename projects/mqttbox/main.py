@@ -60,10 +60,10 @@ print("Main Loop")
 while True:
     try:
         mqtt_client.check_msg()
-        time.sleep(SLEEP_SECS)
     except Exception as e:
-        reboot('Main loop crashed, restarting...')
-
+        print("MQTT Error", e)
+    time.sleep(SLEEP_SECS)
+    
             
         
 
