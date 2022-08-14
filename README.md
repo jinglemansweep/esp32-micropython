@@ -2,6 +2,10 @@
 
 This is home to my collection of various experiments, prototypes and maybe projects taking advantage of modern [ESP32 SoC microcontrollers](https://en.wikipedia.org/wiki/ESP32) and the [MicroPython](https://micropython.org/) development environment.
 
+## Projects
+
+* [MQTTBox](./projects/mqttbox/docs/notes.md)
+
 ## Development Setup
 
 My development setup consists of:
