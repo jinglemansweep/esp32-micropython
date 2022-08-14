@@ -44,10 +44,16 @@ Connect `rshell` to your ESP32 using the found USB device name:
 
     rshell -p /dev/ttyUSB0 repl
 
+Create a source directory to hold your project code, and copy existing code (if any) from the board to your source code directory:
+
+    mkdir ./src
+    cd src
+    rshell -p /dev/ttyUSB rsync /pyboard/ .
+
 To syncronise files to and from your ESP32:
 
     # Sync content in current directory to ESP32 /flash directory
-    rshell -p /dev/ttyUSB rsync . /flash
+    rshell -p /dev/ttyUSB rsync . /pyboard/
     
     # Sync content on ESP32 to current directory
-    rshell -p /dev/ttyUSB rsync /flash .
+    rshell -p /dev/ttyUSB rsync /pyboard/ .

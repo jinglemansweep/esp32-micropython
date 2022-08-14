@@ -1,5 +1,3 @@
-import esp
-esp.osdebug(None)
 from machine import Pin, PWM 
 import network
 import webrepl
