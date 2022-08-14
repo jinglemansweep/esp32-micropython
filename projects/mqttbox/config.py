@@ -21,7 +21,7 @@ def ledfunc(pin):
 
 led_power = ledfunc(Pin(21, Pin.OUT, value = 1))
 led_wifi = ledfunc(Pin(22, Pin.OUT, value = 0))
-led_mqtt_connect = ledfunc(Pin(23, Pin.OUT, value = 0))
+led_connected = ledfunc(Pin(23, Pin.OUT, value = 0))
 led_mqtt_msg = ledfunc(Pin(15, Pin.OUT, value = 0))
 
 motor_i1 = Pin(26, Pin.OUT)

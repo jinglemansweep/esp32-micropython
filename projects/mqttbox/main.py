@@ -7,7 +7,7 @@ from machine import Pin
 from lib.mqttas import MQTTClient, config
 from lib.stepper import create_stepper
 
-from config import led_power, led_wifi, led_mqtt_connect, led_mqtt_msg, motor_i1, motor_i2, motor_i3, motor_i4
+from config import led_power, led_wifi, led_connected, led_mqtt_msg, motor_i1, motor_i2, motor_i3, motor_i4
 
 gc.collect()
 
