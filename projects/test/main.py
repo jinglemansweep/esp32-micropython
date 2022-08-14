@@ -9,15 +9,13 @@ import random
 import time
 
 from stepper import create_stepper
-
-wifi_ssid = ''
-wifi_key = ''
+from secrets import WIFI_SSID, WIFI_KEY
 
 sta_if = network.WLAN(network.STA_IF)
 if not sta_if.isconnected():
     print('connecting to network...')
     sta_if.active(True)
-    sta_if.connect(wifi_ssid, wifi_key)
+    sta_if.connect(WIFI_SSID, WIFI_KEY)
     while not sta_if.isconnected():
         pass
 print('network config:', sta_if.ifconfig())
