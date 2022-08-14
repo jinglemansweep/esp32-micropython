@@ -1,69 +1,72 @@
 import time
-from machine import Pin
-import gc
+time.sleep(2)
 
-from utils import wifi_connect, reboot, flash_pin
-from messaging import mqtt_connect
+import gc
+import uasyncio as asyncio
+from machine import Pin
+from lib.mqttas import MQTTClient, config
 from lib.stepper import create_stepper
+
+from config import led_power, led_wifi, led_mqtt_connect, led_mqtt_msg, motor_i1, motor_i2, motor_i3, motor_i4
 
 gc.collect()
 
-# Useful constants
 SLEEP_SECS = 0.001
+TOPIC = 'test'
 
-# Pin definitions
-pin_led_power = Pin(21, Pin.OUT)
-pin_led_wifi = Pin(22, Pin.OUT)
-pin_led_mqtt_connect = Pin(23, Pin.OUT)
-pin_led_mqtt_message = Pin(15, Pin.OUT)
-pin_motor_i1 = Pin(26, Pin.OUT)
-pin_motor_i2 = Pin(25, Pin.OUT)
-pin_motor_i3 = Pin(33, Pin.OUT)
-pin_motor_i4 = Pin(32, Pin.OUT)
-
-motor = create_stepper(pin_motor_i1, pin_motor_i2, pin_motor_i3, pin_motor_i4, delay=2)
+motor = create_stepper(motor_i1, motor_i2, motor_i3, motor_i4, delay=2)
 motor.reset()
 
-# Utility functions
-def reset():
-    pin_led_power(False)
-    pin_led_wifi(False)
-    pin_led_mqtt_connect(False)
-    pin_led_mqtt_message(False)
-    time.sleep(1)
+outages = 0
 
-# Reset all pins to boot state
-reset()
-pin_led_power(True)
+async def pulse():
+    led_mqtt_msg(True)
+    await asyncio.sleep(1)
+    led_mqtt_msg(False)
 
-# Attempt WiFi connection
-wifi_connect(status_pin=pin_led_wifi)
+def on_message(topic, msg, retained):
+    print(f'Topic: "{topic.decode()}" Message: "{msg.decode()}" Retained: {retained}')
+    asyncio.create_task(pulse())
 
-# MQTT Callbacks
-def on_message(topic, msg):
-    print("{0}: {1}".format(topic, msg))
-    flash_pin(pin_led_mqtt_message)
+async def handle_wifi(state):
+    global outages
+    led_wifi(not state)
+    if state:
+        print('Status: Connected')
+    else:
+        outages += 1
+        print('Status: Not Connected')
+    await asyncio.sleep(1)
+
+async def handle_connection(client):
+    await client.subscribe('foo_topic', 1)
+
+async def main(client):
     try:
-        if topic == b'esp32/dev/motor/command':
-            on_command_motor(int(msg))
-    except Exception as e:
-        print(e)
+        await client.connect()
+    except OSError:
+        print('Status: Connection Failed')
+        return
+    n = 0
+    while True:
+        await asyncio.sleep(5)
+        print('publish', n)
+        await client.publish(TOPIC, '{} repubs: {} outages: {}'.format(n, client.REPUB_COUNT, outages), qos = 1)
+        n += 1
 
-def on_command_motor(payload):
-    print("Motor Command: {0}".format(payload))
-    motor.angle(int(payload))
-    
-mqtt_client = mqtt_connect(b'esp32/dev/motor/#', on_message, pin_led_mqtt_connect)
+config['subs_cb'] = on_message
+config['wifi_coro'] = handle_wifi
+config['will'] = (TOPIC, 'GOODBYE', False, 0)
+config['connect_coro'] = handle_connection
+config['keepalive'] = 120
 
-# Main Loop
-print("Main Loop")
-while True:
-    try:
-        mqtt_client.check_msg()
-    except Exception as e:
-        print("MQTT Error", e)
-    time.sleep(SLEEP_SECS)
-    
-            
-        
+MQTTClient.DEBUG = True
+client = MQTTClient(config)
+
+try:
+    asyncio.run(main(client))
+finally:  # Prevent LmacRxBlk:1 errors.
+    client.close()
+    led_mqtt_msg(True)
+    asyncio.new_event_loop()
 
